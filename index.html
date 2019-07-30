@@ -4,10 +4,100 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="style.css" />
     <title>Asteroids</title>
   </head>
   <body>
-    <canvas id="gameCanvas" width="700" height="500"></canvas>
+    <div class="instructions">
+      <h6>Instructions:</h6>
+      <p>
+        The object of the game is to destroy as many asteroid boulders as
+        possible and keep your ship in space as long as possible. When an
+        asteroid is hit, it may just break up into smaller boulders, or it may
+        be completely pulverized.
+      </p>
+    </div>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    <div class="controls">
+      <div class="direction">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          style=" fill:#fff;"
+          class="border"
+        >
+          <path
+            style="line-height:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000;text-transform:none;block-progression:tb;isolation:auto;mix-blend-mode:normal"
+            d="M 14.900391 6.0234375 L 2.3964844 16 L 3.3769531 16.78125 L 14.900391 25.976562 L 14.900391 20 L 29 20 L 29 12 L 14.900391 12 L 14.900391 6.0234375 z M 12.900391 10.175781 L 12.900391 14 L 27 14 L 27 18 L 12.900391 18 L 12.900391 21.824219 L 5.6015625 16 L 12.900391 10.175781 z"
+            font-weight="400"
+            font-family="sans-serif"
+            white-space="normal"
+            overflow="visible"
+          ></path>
+        </svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          style=" fill:#fff;"
+          class="border"
+        >
+          <g id="surface1">
+            <path
+              style=" "
+              d="M 17.09375 6.03125 L 17.09375 12 L 3 12 L 3 20 L 17.09375 20 L 17.09375 25.96875 L 18.71875 24.6875 L 28.625 16.78125 L 29.59375 16 L 28.625 15.21875 L 18.71875 7.3125 Z M 19.09375 10.1875 L 26.40625 16 L 19.09375 21.8125 L 19.09375 18 L 5 18 L 5 14 L 19.09375 14 Z "
+            ></path>
+          </g>
+        </svg>
+        <p>Move the ship left or right</p>
+      </div>
+      <div class="thrust">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          style=" fill:#fff;"
+          class="border"
+        >
+          <path
+            style="line-height:normal;text-indent:0;text-align:start;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000;text-transform:none;block-progression:tb;isolation:auto;mix-blend-mode:normal"
+            d="M 16 2.3964844 L 15.21875 3.3769531 L 6.0234375 14.900391 L 12 14.900391 L 12 29 L 20 29 L 20 14.900391 L 25.976562 14.900391 L 16 2.3964844 z M 16 5.6015625 L 21.824219 12.900391 L 18 12.900391 L 18 27 L 14 27 L 14 12.900391 L 10.175781 12.900391 L 16 5.6015625 z"
+            font-weight="400"
+            font-family="sans-serif"
+            white-space="normal"
+            overflow="visible"
+          ></path>
+        </svg>
+        <p>Move spaceship forward</p>
+      </div>
+      <div class="shoot">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="#fff"
+          class="border space"
+        >
+          <path d="M18 9v4H6V9H4v6h16V9z" />
+        </svg>
+        <p>Space bar to shoot</p>
+      </div>
+      <div class="pause">
+        <h4 style="color: white; font-size: 28px" class="border">P</h4>
+        <p>Pause the game</p>
+      </div>
+    </div>
     <script src="App.js"></script>
   </body>
 </html>
