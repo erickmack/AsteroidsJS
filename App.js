@@ -39,6 +39,7 @@ let fxThrust = new Sound("sounds/thrust.m4a")
 // set up game params
 let level, lives, roids, ship, score, scoreHigh, text, textAlpha
 newGame()
+let pause = false
 
 createAsteroidBelt()
 
@@ -148,6 +149,10 @@ function keyDown(/** @type{ KeyboardEvent }*/ ev) {
       break
     case 39: // rotate ship right
       ship.rot = ((-TURN_SPEED / 180) * Math.PI) / FPS
+      break
+    case 80:
+      pause = !pause
+      console.log(pause)
       break
   }
 }
@@ -259,7 +264,7 @@ function Sound(src, maxStreams = 1, vol = 1.0) {
   }
 
   this.play = function() {
-    if (SOUND_ON) {
+    if (!pause) {
       this.streamNum = (this.streamNum + 1) % maxStreams
       this.streams[this.streamNum].play()
     }
@@ -279,7 +284,7 @@ function update() {
   ctx.fillRect(0, 0, canv.width, canv.height)
 
   // ship thrust
-  if (ship.thrusting && !ship.dead) {
+  if (ship.thrusting && !ship.dead && !pause) {
     ship.thrust.x += (SHIP_THRUST * Math.cos(ship.a)) / FPS
     ship.thrust.y -= (SHIP_THRUST * Math.sin(ship.a)) / FPS
     fxThrust.play()
@@ -318,11 +323,11 @@ function update() {
     }
 
     // handle blinking
-    if (ship.blinkNum > 0) {
+    if (ship.blinkNum > 0 && !pause) {
       // reduce blink time
       ship.blinkTime--
       //reduce blink num
-      if (ship.blinkTime == 0) {
+      if (ship.blinkTime === 0) {
         ship.blinkTime = Math.ceil(SHIP_BLINK_DUR * FPS)
         ship.blinkNum--
       }
@@ -395,55 +400,57 @@ function update() {
     }
   }
 
-  // draw the lasers
-  for (let i = 0; i < ship.lasers.length; i++) {
-    if (ship.lasers[i].explodeTime == 0) {
-      ctx.fillStyle = "salmon"
-      ctx.beginPath()
-      ctx.arc(
-        ship.lasers[i].x,
-        ship.lasers[i].y,
-        SHIP_SIZE / 15,
-        0,
-        Math.PI * 2,
-        false
-      )
-      ctx.fill()
-    } else {
-      // draw explosion
-      ctx.fillStyle = "salmon"
-      ctx.beginPath()
-      ctx.arc(
-        ship.lasers[i].x,
-        ship.lasers[i].y,
-        ship.r * 0.75,
-        0,
-        Math.PI * 2,
-        false
-      )
-      ctx.fill()
-      ctx.fillStyle = "orangered"
-      ctx.beginPath()
-      ctx.arc(
-        ship.lasers[i].x,
-        ship.lasers[i].y,
-        ship.r * 0.5,
-        0,
-        Math.PI * 2,
-        false
-      )
-      ctx.fill()
-      ctx.fillStyle = "pink"
-      ctx.beginPath()
-      ctx.arc(
-        ship.lasers[i].x,
-        ship.lasers[i].y,
-        ship.r * 0.25,
-        0,
-        Math.PI * 2,
-        false
-      )
-      ctx.fill()
+  if (!pause) {
+    // draw the lasers
+    for (let i = 0; i < ship.lasers.length; i++) {
+      if (ship.lasers[i].explodeTime == 0) {
+        ctx.fillStyle = "salmon"
+        ctx.beginPath()
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          SHIP_SIZE / 15,
+          0,
+          Math.PI * 2,
+          false
+        )
+        ctx.fill()
+      } else {
+        // draw explosion
+        ctx.fillStyle = "salmon"
+        ctx.beginPath()
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          ship.r * 0.75,
+          0,
+          Math.PI * 2,
+          false
+        )
+        ctx.fill()
+        ctx.fillStyle = "orangered"
+        ctx.beginPath()
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          ship.r * 0.5,
+          0,
+          Math.PI * 2,
+          false
+        )
+        ctx.fill()
+        ctx.fillStyle = "pink"
+        ctx.beginPath()
+        ctx.arc(
+          ship.lasers[i].x,
+          ship.lasers[i].y,
+          ship.r * 0.25,
+          0,
+          Math.PI * 2,
+          false
+        )
+        ctx.fill()
+      }
     }
   }
 
@@ -469,6 +476,15 @@ function update() {
       0.5 * Math.PI,
       lifeColour
     )
+  }
+
+  // draw the pause text
+  if (pause) {
+    ctx.textAlign = "center"
+    ctx.textBaseline = "center"
+    ctx.fillStyle = `white`
+    ctx.font = `${TEXT_SIZE}px dejavu sans mono`
+    ctx.fillText("PAUSED", canv.width / 2, canv.height / 2)
   }
 
   // draw the score
@@ -513,8 +529,8 @@ function update() {
   }
 
   // check for asteroid collision
-  if (!exploding) {
-    if (ship.blinkNum == 0 && !ship.dead) {
+  if (!exploding && !pause) {
+    if (ship.blinkNum === 0 && !ship.dead) {
       for (let i = 0; i < roids.length; i++) {
         if (
           distBetweenPoinst(ship.x, ship.y, roids[i].x, roids[i].y) <
@@ -526,12 +542,14 @@ function update() {
       }
     }
 
-    // ship rotation
-    ship.a += ship.rot
+    if (!pause) {
+      // ship rotation
+      ship.a += ship.rot
 
-    // ship movement
-    ship.x += ship.thrust.x
-    ship.y += ship.thrust.y
+      // ship movement
+      ship.x += ship.thrust.x
+      ship.y += ship.thrust.y
+    }
   } else {
     ship.explodeTime--
     if (ship.explodeTime == 0) {
@@ -557,59 +575,62 @@ function update() {
   }
 
   // move the lasers
-  for (let i = ship.lasers.length - 1; i >= 0; i--) {
-    // check distance traveled
-    if (ship.lasers[i].dist > LASER_DIST * canv.width) {
-      ship.lasers.splice(i, 1)
-      continue
-    }
-
-    // handle explosion
-    if (ship.lasers[i].explodeTime > 0) {
-      ship.lasers[i].explodeTime--
-      // destroy laser after duration time
-      if (ship.lasers[i].explodeTime === 0) {
+  if (!pause) {
+    for (let i = ship.lasers.length - 1; i >= 0; i--) {
+      // check distance traveled
+      if (ship.lasers[i].dist > LASER_DIST * canv.width) {
         ship.lasers.splice(i, 1)
         continue
       }
-    } else {
-      ship.lasers[i].x += ship.lasers[i].xv
-      ship.lasers[i].y += ship.lasers[i].yv
 
-      // calculate distance traveled
-      ship.lasers[i].dist += Math.sqrt(
-        Math.pow(ship.lasers[i].xv, 2) + Math.pow(ship.lasers[i].yv, 2)
-      )
-    }
+      // handle explosion
+      if (ship.lasers[i].explodeTime > 0) {
+        ship.lasers[i].explodeTime--
+        // destroy laser after duration time
+        if (ship.lasers[i].explodeTime === 0) {
+          ship.lasers.splice(i, 1)
+          continue
+        }
+      } else {
+        ship.lasers[i].x += ship.lasers[i].xv
+        ship.lasers[i].y += ship.lasers[i].yv
 
-    // handle edge of screen
-    if (ship.lasers[i].x < 0) {
-      ship.lasers[i].x = canv.width
-    } else if (ship.lasers[i].x > canv.width) {
-      ship.lasers[i].x = 0
-    }
-    if (ship.lasers[i].y < 0) {
-      ship.lasers[i].y = canv.height
-    } else if (ship.lasers[i].y > canv.height) {
-      ship.lasers[i].y = 0
+        // calculate distance traveled
+        ship.lasers[i].dist += Math.sqrt(
+          Math.pow(ship.lasers[i].xv, 2) + Math.pow(ship.lasers[i].yv, 2)
+        )
+      }
+
+      // handle edge of screen
+      if (ship.lasers[i].x < 0) {
+        ship.lasers[i].x = canv.width
+      } else if (ship.lasers[i].x > canv.width) {
+        ship.lasers[i].x = 0
+      }
+      if (ship.lasers[i].y < 0) {
+        ship.lasers[i].y = canv.height
+      } else if (ship.lasers[i].y > canv.height) {
+        ship.lasers[i].y = 0
+      }
     }
   }
+  if (!pause) {
+    // move the asteroids
+    for (let i = 0; i < roids.length; i++) {
+      roids[i].x += roids[i].xv
+      roids[i].y += roids[i].yv
 
-  // move the asteroids
-  for (let i = 0; i < roids.length; i++) {
-    roids[i].x += roids[i].xv
-    roids[i].y += roids[i].yv
-
-    // handle edge of screen
-    if (roids[i].x < 0 - roids[i].r) {
-      roids[i].x = canv.width + roids[i].r
-    } else if (roids[i].x > canv.width + roids[i].r) {
-      roids[i].x = 0 - roids[i].r
-    }
-    if (roids[i].y < 0 - roids[i].r) {
-      roids[i].y = canv.height + roids[i].r
-    } else if (roids[i].y > canv.height + roids[i].r) {
-      roids[i].y = 0 - roids[i].r
+      // handle edge of screen
+      if (roids[i].x < 0 - roids[i].r) {
+        roids[i].x = canv.width + roids[i].r
+      } else if (roids[i].x > canv.width + roids[i].r) {
+        roids[i].x = 0 - roids[i].r
+      }
+      if (roids[i].y < 0 - roids[i].r) {
+        roids[i].y = canv.height + roids[i].r
+      } else if (roids[i].y > canv.height + roids[i].r) {
+        roids[i].y = 0 - roids[i].r
+      }
     }
   }
 }
